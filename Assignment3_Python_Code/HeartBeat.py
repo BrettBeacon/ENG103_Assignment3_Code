@@ -1,6 +1,6 @@
 import qwiic_max3010x
 import RPi.GPIO as GPIO
-#from twilio.rest import Client
+from twilio.rest import Client
 import time
 import sys
 
@@ -8,16 +8,20 @@ GPIO.setmode(GPIO.BCM)
 led_pin = 14
 GPIO.setup(led_pin, GPIO.OUT)
 
-#account_sid = 'ACbd7145b887a644feac5a005f70ac28b7'
-#auth_token = 'ac2a05ef8dc684e84b2d19b6e23ae9e3'
-#client = Client(account_sid, auth_token)
+account_sid = 'ACbd7145b887a644feac5a005f70ac28b7'
+auth_token = '9c61a08231b23bc3a866b478cb867f3a'
+client = Client(account_sid, auth_token)
 
-#def CriticalMessage(userName: str, mobileNumber: int):
-#    message = client.messages.create(
-#        body = "<<{0}>>: CRITICAL LEVEL HEART RATE".format(userName),
-#        from_ = '+15017122661',
-#        to = "{0}".format(mobileNumber)
-#    )
+def CriticalMessage(heartBeats):
+    
+    concatString = ''.join(str(heartBeats))
+    
+    message = client.messages.create(
+        body = "ENG103 << Brett, Julius, Luke, Harry >> Health Alert: Oxygen level is INSERT HERE and BPM is {0}".format(concatString),
+        from_ = '+18183814759',
+        to = "+61484956633"
+    )
+    print(message.sid)
 
 def LEDControl(control: bool):
     if(control):
@@ -59,6 +63,8 @@ def runSensor():
     beatAvg = 0
     samplesTaken = 0 # Counter for calculating the Hz or read rate
     startTime = millis() # Used to calculate measurement rate
+    listOfHeartBeats = []
+    timePassed = 0
     
     while True:
                 
@@ -68,6 +74,7 @@ def runSensor():
             print('BEAT')
             delta = ( millis() - lastBeat )
             lastBeat = millis()
+            timePassed += 1
             
             beatsPerMinute = 60 / (delta / 1000.0)
             beatsPerMinute = round(beatsPerMinute,1)
@@ -92,8 +99,17 @@ def runSensor():
                             'Hz=', Hz, \
             )
         
-        if (beatsPerMinute > 100):
+        if (beatsPerMinute > 80):
             LEDControl(True)
+            if (samplesTaken % 200 ) == 0:
+                listOfHeartBeats.append(beatsPerMinute)
+            if(timePassed > 20 and timePassed < 30):
+                CriticalMessage(listOfHeartBeats)
+                GPIO.cleanup()
+                for beat in listOfHeartBeats:
+                    print(beat)
+                break
+            
         else:
             LEDControl(False)
 
@@ -102,4 +118,5 @@ if __name__ == '__main__':
         runSensor()
     except (KeyboardInterrupt, SystemExit) as exErr:
         print("\nEnding Sensor")
+        GPIO.cleanup()
         sys.exit(0)
