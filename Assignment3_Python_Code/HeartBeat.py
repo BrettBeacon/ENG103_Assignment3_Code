@@ -8,8 +8,8 @@ GPIO.setmode(GPIO.BCM)
 led_pin = 14
 GPIO.setup(led_pin, GPIO.OUT)
 
-#account_sid = ''
-#auth_token = ''
+#account_sid = 'ACbd7145b887a644feac5a005f70ac28b7'
+#auth_token = 'ac2a05ef8dc684e84b2d19b6e23ae9e3'
 #client = Client(account_sid, auth_token)
 
 #def CriticalMessage(userName: str, mobileNumber: int):
