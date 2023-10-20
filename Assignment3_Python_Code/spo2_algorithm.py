@@ -115,13 +115,13 @@ def maxim_heart_rate_and_oxygen_saturation(pun_ir_buffer, n_ir_buffer_length, pu
 def maxim_find_peaks(pn_locs, n_npks, pn_x, n_size, n_min_height, n_min_distance, n_max_num):
     maxim_peaks_above_min_height(pn_locs, n_npks, pn_x, n_size, n_min_height)
     maxim_remove_close_peaks(pn_locs, n_npks, pn_x, n_min_distance)
-    n_npks[0] = min(n_npks[0], n_max_num)
+    n_npks = min(n_npks, n_max_num)
 
 
 def maxim_peaks_above_min_height(pn_locs, n_npks, pn_x, n_size, n_min_height):
     i = 1
     n_width = 0
-    n_npks[0] = 0
+    n_npks = 0
 
     while i < n_size - 1:
         if pn_x[i] > n_min_height and pn_x[i] > pn_x[i - 1]:
@@ -129,9 +129,10 @@ def maxim_peaks_above_min_height(pn_locs, n_npks, pn_x, n_size, n_min_height):
             while i + n_width < n_size and pn_x[i] == pn_x[i + n_width]:
                 n_width += 1
 
-            if pn_x[i] > pn_x[i + n_width] and n_npks[0] < MAX_NUM:
-                pn_locs[n_npks[0]] = i
+            if pn_x[i] > pn_x[i + n_width] and n_npks < MAX_NUM:
+                pn_locs[n_npks] = i
                 i += n_width + 1
+                n_npks += 1
             else:
                 i += n_width
         else:
@@ -145,12 +146,12 @@ def maxim_remove_close_peaks(pn_locs, n_npks, pn_x, n_min_distance):
 
     pn_locs.sort()
 
-    for i in range(n_npks[0] + 1):
-        n_old_npks = n_npks[0]
-        n_npks[0] = i + 1
+    for i in range(n_npks + 1):
+        n_old_npks = n_npks
+        n_npks = i + 1
 
         for j in range(i + 1, n_old_npks):
             n_dist = pn_locs[j] - (pn_locs[i] if i == -1 else pn_locs[i])
 
             if n_dist > n_min_distance or n_dist < -n_min_distance:
-                pn_locs[n_npks[0]] = pn_locs[j]
+                pn_locs[n_npks] = pn_locs[j]

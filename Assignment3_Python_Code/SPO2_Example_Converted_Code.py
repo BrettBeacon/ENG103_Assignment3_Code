@@ -1,13 +1,13 @@
 import time
 import sys
-import MAX30105
+import qwiic_max3010x
 from spo2_algorithm import maxim_heart_rate_and_oxygen_saturation
 
 # Constants
 MAX_BRIGHTNESS = 255
 
 # Create MAX30105 instance
-particleSensor = MAX30105.MAX30105()
+particleSensor = qwiic_max3010x.QwiicMax3010x()
 
 # Data arrays
 irBuffer = [0] * 100
@@ -20,8 +20,8 @@ heartRate = 0
 validHeartRate = 0
 
 # Pins
-pulseLED = 11  # Must be on PWM pin
-readLED = 13  # Blinks with each data read
+pulseLED = 3  # Must be on PWM pin
+readLED = particleSensor.setPulseAmplitudeRed(0x0A)  # Blinks with each data read
 
 def setup():
     global bufferLength, spo2, validSPO2, heartRate, validHeartRate
@@ -70,8 +70,8 @@ def loop():
                 particleSensor.check()
 
             # Blink onboard LED with every data read
-            readLEDState = not particleSensor.digitalRead(readLED)
-            particleSensor.digitalWrite(readLED, readLEDState)
+            readLEDState = not particleSensor.getRed()
+            #particleSensor.setRedLEDCurrent(readLEDState)
 
             redBuffer[i] = particleSensor.getRed()
             irBuffer[i] = particleSensor.getIR()
