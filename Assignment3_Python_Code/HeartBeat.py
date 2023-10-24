@@ -17,7 +17,7 @@ def CriticalMessage(heartBeats):
     concatString = ''.join(str(heartBeats))
     
     message = client.messages.create(
-        body = "ENG103 << Brett, Julius, Luke, Harry >> Health Alert: Oxygen level is INSERT HERE and BPM is {0}".format(concatString),
+        body = "ENG103 << Brett, Julius, Luke, Harry >> Health Alert: BPM is {0}".format(concatString),
         from_ = '+18183814759',
         to = "+61484956633"
     )
@@ -65,6 +65,7 @@ def runSensor():
     startTime = millis() # Used to calculate measurement rate
     listOfHeartBeats = []
     timePassed = 0
+    i = 0
     
     while True:
                 
@@ -100,9 +101,14 @@ def runSensor():
             )
         
         if (beatsPerMinute > 80):
-            LEDControl(True)
+            #LEDControl(True)
             if (samplesTaken % 200 ) == 0:
                 listOfHeartBeats.append(beatsPerMinute)
+                for x in range(3):
+                    LEDControl(True)
+                    time.sleep(0.5)
+                    LEDControl(False)
+                    time.sleep(0.5)
             if(timePassed > 20 and timePassed < 30):
                 CriticalMessage(listOfHeartBeats)
                 GPIO.cleanup()
